@@ -1,0 +1,122 @@
+import { describe, expect, it } from "vitest";
+import {
+  extractEmailDomain,
+  feedbackSchema,
+  domainSchema,
+  moderationCaseSchema,
+  profileSchema,
+  requestSchema,
+  rescheduleSchema,
+  safeRedirectPath,
+  signUpSchema,
+} from "@/lib/validation";
+
+describe("authentication validation", () => {
+  it("normalizes a valid academic email domain", () => {
+    expect(extractEmailDomain("  Student@UW.EDU ")).toBe("uw.edu");
+  });
+
+  it("rejects malformed email addresses", () => {
+    expect(extractEmailDomain("not-an-email")).toBeNull();
+  });
+
+  it("requires matching strong passwords", () => {
+    const result = signUpSchema.safeParse({
+      email: "student@uw.edu",
+      password: "weak",
+      confirmPassword: "different",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("Phase 3 operational validation", () => {
+  it("requires a future, specific reschedule proposal", () => {
+    expect(rescheduleSchema.safeParse({
+      requestId: "40000000-0000-4000-8000-000000000001",
+      preferredAt: "2020-01-01T10:00",
+      format: "online",
+    }).success).toBe(false);
+  });
+
+  it("accepts only known moderation states", () => {
+    expect(moderationCaseSchema.safeParse({
+      caseId: "90000000-0000-4000-8000-000000000100",
+      status: "deleted",
+      priority: "urgent",
+    }).success).toBe(false);
+  });
+
+  it("normalizes and validates institution domains", () => {
+    const result = domainSchema.safeParse({
+      universityId: "10000000-0000-4000-8000-000000000001",
+      domain: " UW.EDU ",
+      development: false,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.domain).toBe("uw.edu");
+  });
+});
+
+describe("safe redirects", () => {
+  it("preserves internal paths with query strings", () => {
+    expect(safeRedirectPath("/requests?view=sent")).toBe("/requests?view=sent");
+  });
+
+  it.each(["https://example.com", "//example.com", "\\example.com", "discover"])(
+    "rejects unsafe destination %s",
+    (destination) => {
+      expect(safeRedirectPath(destination)).toBe("/discover");
+    },
+  );
+});
+
+describe("domain form validation", () => {
+  it("rejects a request with a past meeting time", () => {
+    const result = requestSchema.safeParse({
+      recipientId: "30000000-0000-4000-8000-000000000002",
+      requestedSkillId: "20000000-0000-4000-8000-000000000001",
+      message: "This message is long enough to explain the learning goal.",
+      preferredAt: "2020-01-01T10:00:00.000Z",
+      format: "online",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("requires skills on both sides of a profile", () => {
+    const result = profileSchema.safeParse({
+      displayName: "Anita",
+      major: "Information Systems",
+      biography: "A biography with enough detail to pass validation.",
+      location: "Seattle, WA",
+      availability: "Saturday mornings",
+      meetingPreference: "either",
+      beginnerFriendly: true,
+      learningStyle: "Patient and practical",
+      discoverable: true,
+      showLocation: true,
+      teachingSkillIds: [],
+      learningSkillIds: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("distinguishes unanswered feedback from an explicit No response", () => {
+    const missing = feedbackSchema.safeParse({
+      requestId: "30000000-0000-4000-8000-000000000001",
+      helpful: null,
+      comfortableAndRespected: "yes",
+      learnTogetherAgain: "no",
+    });
+    const complete = feedbackSchema.safeParse({
+      requestId: "30000000-0000-4000-8000-000000000001",
+      helpful: "no",
+      comfortableAndRespected: "yes",
+      learnTogetherAgain: "no",
+    });
+
+    expect(missing.success).toBe(false);
+    expect(complete.success).toBe(true);
+    if (complete.success) expect(complete.data.helpful).toBe(false);
+  });
+});

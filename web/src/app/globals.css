@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream-50: #fffdf8;
+  --color-cream-100: #faf5e9;
+  --color-cream-200: #eee5d5;
+  --color-coral-50: #fff2ed;
+  --color-coral-100: #ffded3;
+  --color-coral-200: #ffc3b1;
+  --color-coral-300: #f99e84;
+  --color-coral-500: #e96547;
+  --color-coral-600: #cc4d32;
+  --color-coral-800: #8f3524;
+  --color-indigo-50: #f3f3fb;
+  --color-indigo-100: #e5e4f6;
+  --color-indigo-200: #ccc9ea;
+  --color-indigo-300: #aaa6dc;
+  --color-indigo-800: #413f7e;
+  --color-indigo-900: #302e64;
+  --color-indigo-950: #24224e;
+  --color-ink-400: #7f7b76;
+  --color-ink-500: #65615d;
+  --color-ink-600: #4c4946;
+  --shadow-card: 0 12px 30px rgba(48, 46, 100, 0.06);
+  --shadow-card-hover: 0 18px 42px rgba(48, 46, 100, 0.11);
+  --font-sans: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  --background: #fffdf8;
+  --foreground: #24224e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+summary,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page-shell {
+  width: min(100% - 2rem, 74rem);
+  margin-inline: auto;
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: #65615d;
+}
+
+.field {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid #ccc9ea;
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.7rem 0.85rem;
+  color: #24224e;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.field:focus {
+  border-color: #e96547;
+  box-shadow: 0 0 0 3px #ffded3;
+}
+
+.field[aria-invalid="true"] {
+  border-color: #b91c1c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

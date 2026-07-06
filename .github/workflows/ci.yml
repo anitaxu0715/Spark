@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: ./web/node_modules/.bin/supabase start
+      - name: Configure local application environment
+        run: |
+          status="$(./web/node_modules/.bin/supabase status -o json)"
+          printf 'NEXT_PUBLIC_SUPABASE_URL=%s\n' "$(jq -r '.API_URL' <<<"$status")" > web/.env.local
+          printf 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=%s\n' "$(jq -r '.PUBLISHABLE_KEY // .ANON_KEY' <<<"$status")" >> web/.env.local
+          printf 'NEXT_PUBLIC_SITE_URL=http://localhost:3000\n' >> web/.env.local
+      - run: ./web/node_modules/.bin/supabase db reset --local
+      - run: ./web/node_modules/.bin/supabase db lint --local --level warning
+      - run: ./web/node_modules/.bin/supabase test db
+      - run: npm run test
+        working-directory: web
+      - run: npm run lint
+        working-directory: web
+      - run: npm run typecheck
+        working-directory: web
+      - run: npm run build
+        working-directory: web
+      - run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: web
+      - run: npm run test:e2e
+        working-directory: web
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            web/playwright-report
+            web/test-results
+          retention-days: 7
