@@ -32,12 +32,20 @@ test("supports preferences, export, and deletion grace-period cancellation", asy
   await expect(page.getByRole("status")).toContainText("saved");
 
   await page.goto("/settings/account");
-  const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("link", { name: "Download JSON export" }).click();
-  const download = await downloadPromise;
-  expect(download.suggestedFilename()).toMatch(/^spark-data-\d{4}-\d{2}-\d{2}\.json$/);
-  await page.reload();
-  await expect(page.getByRole("heading", { name: "Your account" })).toBeVisible();
+  const exportLink = page.getByRole("link", { name: "Download JSON export" });
+  await expect(exportLink).toHaveAttribute("href", "/settings/account/export");
+  const exportResponse = await page.request.get("/settings/account/export");
+  expect(exportResponse.ok()).toBe(true);
+  expect(exportResponse.headers()["content-disposition"]).toMatch(
+    /^attachment; filename="spark-data-\d{4}-\d{2}-\d{2}\.json"$/,
+  );
+  expect(exportResponse.headers()["cache-control"]).toBe("no-store");
+  const exportData = await exportResponse.json() as {
+    account: { email: string };
+    privateFeedback: unknown[];
+  };
+  expect(exportData.account.email).toBe("jordan@seattleu.edu");
+  expect(Array.isArray(exportData.privateFeedback)).toBe(true);
 
   await page.getByLabel("Current password").fill("SparkLocal!2026");
   await page.getByLabel("Type DELETE to confirm").fill("DELETE");
