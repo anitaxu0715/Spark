@@ -55,6 +55,18 @@ test.describe("authentication acceptance", () => {
     await expect(page).toHaveURL(/\/onboarding$/);
     await expect(page.getByRole("heading", { name: /Make room for what you know/ })).toBeVisible();
 
+    await page.getByLabel("Add a skill I can share").fill("https://bad.example");
+    await page.getByLabel("Add a skill I want to learn").fill("Grant writing");
+    await page.getByRole("button", { name: "Complete profile" }).click();
+    await expect(page.getByText("Custom skills cannot contain URLs, emails, or markup.")).toBeVisible();
+
+    await page.getByLabel("Add a skill I can share").fill("  Crochet   Basics  ");
+    await page.getByLabel("Add a skill I want to learn").fill("crochet basics");
+    await page.getByRole("button", { name: "Complete profile" }).click();
+    await expect(page).toHaveURL(/\/profile$/);
+    await expect(page.locator("section").filter({ hasText: "I can share" }).getByText("Crochet Basics")).toBeVisible();
+    await expect(page.locator("section").filter({ hasText: "I want to learn" }).getByText("Crochet Basics")).toBeVisible();
+
     await page.getByRole("button", { name: "Sign out" }).first().click();
     await page.goto("/auth/forgot-password");
     await page.getByLabel("Account email").fill(email);
@@ -80,6 +92,6 @@ test.describe("authentication acceptance", () => {
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Password").fill(updatedPassword);
     await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page).toHaveURL(/\/onboarding$/);
+    await expect(page).toHaveURL(/\/discover$/);
   });
 });

@@ -86,17 +86,64 @@ describe("domain form validation", () => {
   it("requires skills on both sides of a profile", () => {
     const result = profileSchema.safeParse({
       displayName: "Anita",
-      major: "Information Systems",
-      biography: "A biography with enough detail to pass validation.",
-      location: "Seattle, WA",
-      availability: "Saturday mornings",
+      major: "",
+      biography: "",
+      location: "",
+      availability: "",
       meetingPreference: "either",
       beginnerFriendly: true,
-      learningStyle: "Patient and practical",
+      learningStyle: "",
       discoverable: true,
       showLocation: true,
       teachingSkillIds: [],
       learningSkillIds: [],
+      customTeachingSkills: [],
+      customLearningSkills: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("allows minimal optional profile fields when custom skills are provided", () => {
+    const result = profileSchema.safeParse({
+      displayName: "Anita",
+      major: "",
+      biography: "",
+      location: "",
+      availability: "",
+      meetingPreference: "either",
+      beginnerFriendly: true,
+      learningStyle: "",
+      discoverable: true,
+      showLocation: false,
+      teachingSkillIds: [],
+      learningSkillIds: [],
+      customTeachingSkills: ["  Crochet   Basics  "],
+      customLearningSkills: ["Grant writing"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.customTeachingSkills).toEqual(["Crochet Basics"]);
+      expect(result.data.customLearningSkills).toEqual(["Grant writing"]);
+      expect(result.data.biography).toBe("");
+    }
+  });
+
+  it("rejects unsafe custom skill names", () => {
+    const result = profileSchema.safeParse({
+      displayName: "Anita",
+      major: "",
+      biography: "",
+      location: "",
+      availability: "",
+      meetingPreference: "either",
+      beginnerFriendly: true,
+      learningStyle: "",
+      discoverable: true,
+      showLocation: false,
+      teachingSkillIds: [],
+      learningSkillIds: [],
+      customTeachingSkills: ["https://bad.example"],
+      customLearningSkills: ["me@example.com"],
     });
     expect(result.success).toBe(false);
   });

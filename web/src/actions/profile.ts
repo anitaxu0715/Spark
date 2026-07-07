@@ -28,6 +28,8 @@ export async function saveProfileAction(_state: ActionState, formData: FormData)
     showLocation: checkbox(formData, "showLocation"),
     teachingSkillIds: formData.getAll("teachingSkillIds"),
     learningSkillIds: formData.getAll("learningSkillIds"),
+    customTeachingSkills: formData.getAll("customTeachingSkills"),
+    customLearningSkills: formData.getAll("customLearningSkills"),
   });
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
 
@@ -50,6 +52,8 @@ export async function saveProfileAction(_state: ActionState, formData: FormData)
     profile_show_location: values.showLocation,
     teaching_skill_ids: values.teachingSkillIds,
     learning_skill_ids: values.learningSkillIds,
+    custom_teaching_skill_names: values.customTeachingSkills,
+    custom_learning_skill_names: values.customLearningSkills,
   });
   if (error) {
     return {

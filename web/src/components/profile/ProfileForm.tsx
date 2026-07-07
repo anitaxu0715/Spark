@@ -31,23 +31,23 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
           <FormField id="display-name" label="Display name" error={state.fieldErrors?.displayName?.[0]}>
             <input className="field" defaultValue={profile.name} id="display-name" name="displayName" required />
           </FormField>
-          <FormField id="major" label="Major or area of study" error={state.fieldErrors?.major?.[0]}>
-            <input className="field" defaultValue={profile.major} id="major" name="major" required />
+          <FormField id="major" label="Major or area of study (optional)" error={state.fieldErrors?.major?.[0]}>
+            <input className="field" defaultValue={profile.major} id="major" name="major" />
           </FormField>
-          <FormField id="general-location" label="General location" error={state.fieldErrors?.location?.[0]}>
-            <input className="field" defaultValue={profile.location ?? ""} id="general-location" name="location" required />
+          <FormField id="general-location" label="General location (optional)" error={state.fieldErrors?.location?.[0]} hint="Share a broad area only if it helps people plan in-person sessions.">
+            <input className="field" defaultValue={profile.location ?? ""} id="general-location" name="location" />
           </FormField>
-          <FormField id="availability" label="Availability" error={state.fieldErrors?.availability?.[0]}>
-            <input className="field" defaultValue={profile.availability.summary} id="availability" name="availability" required />
+          <FormField id="availability" label="Availability (optional)" error={state.fieldErrors?.availability?.[0]}>
+            <input className="field" defaultValue={profile.availability.summary} id="availability" name="availability" />
           </FormField>
           <div className="sm:col-span-2">
-            <FormField id="biography" label="Biography" error={state.fieldErrors?.biography?.[0]}>
-              <textarea className="field min-h-28 resize-y" defaultValue={profile.bio} id="biography" maxLength={800} name="biography" required />
+            <FormField id="biography" label="Biography (optional)" error={state.fieldErrors?.biography?.[0]} hint="A short intro can help, but you can leave this blank and come back later.">
+              <textarea className="field min-h-28 resize-y" defaultValue={profile.bio} id="biography" maxLength={800} name="biography" />
             </FormField>
           </div>
           <div className="sm:col-span-2">
-            <FormField id="learning-style" label="Teaching and learning style" error={state.fieldErrors?.learningStyle?.[0]}>
-              <input className="field" defaultValue={profile.style} id="learning-style" name="learningStyle" required />
+            <FormField id="learning-style" label="Teaching and learning style (optional)" error={state.fieldErrors?.learningStyle?.[0]}>
+              <input className="field" defaultValue={profile.style} id="learning-style" name="learningStyle" />
             </FormField>
           </div>
         </div>
@@ -67,6 +67,11 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
                 </label>
               ))}
             </div>
+            <div className="mt-4">
+              <FormField id="custom-teaching-skill" label="Add a skill I can share" error={state.fieldErrors?.customTeachingSkills?.[0]} hint="Optional. 2-80 characters; no URLs, emails, or markup.">
+                <input className="field" id="custom-teaching-skill" name="customTeachingSkills" placeholder="e.g. Crochet basics" />
+              </FormField>
+            </div>
             {state.fieldErrors?.teachingSkillIds?.[0] && <p className="mt-2 text-sm font-medium text-red-700" role="alert">{state.fieldErrors.teachingSkillIds[0]}</p>}
           </div>
           <div>
@@ -78,6 +83,11 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
                   {skill.name}
                 </label>
               ))}
+            </div>
+            <div className="mt-4">
+              <FormField id="custom-learning-skill" label="Add a skill I want to learn" error={state.fieldErrors?.customLearningSkills?.[0]} hint="Optional. Use the same name to reuse an existing community skill.">
+                <input className="field" id="custom-learning-skill" name="customLearningSkills" placeholder="e.g. Grant writing" />
+              </FormField>
             </div>
             {state.fieldErrors?.learningSkillIds?.[0] && <p className="mt-2 text-sm font-medium text-red-700" role="alert">{state.fieldErrors.learningSkillIds[0]}</p>}
           </div>

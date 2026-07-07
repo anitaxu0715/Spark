@@ -1091,6 +1091,8 @@ export type Database = {
       }
       save_my_profile: {
         Args: {
+          custom_learning_skill_names: string[]
+          custom_teaching_skill_names: string[]
           learning_skill_ids: string[]
           profile_availability: string
           profile_beginner_friendly: boolean

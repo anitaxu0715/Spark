@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(36);
+select plan(43);
 
 select is(
   (
@@ -223,6 +223,101 @@ select cmp_ok(
   '>',
   now() + interval '9 days',
   'Accepting a proposal updates the request schedule'
+);
+reset role;
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '30000000-0000-4000-8000-000000000004', true);
+select lives_ok(
+  $$ select public.save_my_profile(
+       'Minimal Member',
+       '',
+       '',
+       '',
+       '',
+       'either',
+       true,
+       '',
+       true,
+       false,
+       '{}'::uuid[],
+       '{}'::uuid[],
+       array['  Crochet   Basics  '],
+       array['crochet basics']
+     ) $$,
+  'A member can complete onboarding with optional profile fields empty and custom skills'
+);
+select is(
+  (
+    select jsonb_build_object(
+      'major', major,
+      'biography', biography,
+      'availability', availability_summary,
+      'style', learning_style,
+      'onboarding', onboarding_completed
+    )
+    from public.profiles
+    where id = '30000000-0000-4000-8000-000000000004'
+  ),
+  '{"major":"","biography":"","availability":"","style":"","onboarding":true}'::jsonb,
+  'Optional profile fields remain empty strings while onboarding completes'
+);
+select is(
+  (select count(*) from public.profile_locations where profile_id = '30000000-0000-4000-8000-000000000004'),
+  0::bigint,
+  'Empty optional location removes the profile location row'
+);
+select is(
+  (select count(*) from public.skills where canonical_name = 'crochet basics' and category = 'Community'),
+  1::bigint,
+  'Custom skills are normalized and deduplicated case-insensitively'
+);
+select is(
+  (select count(*) from public.profile_skills where profile_id = '30000000-0000-4000-8000-000000000004'),
+  2::bigint,
+  'The normalized custom skill can be attached for both teaching and learning'
+);
+select throws_ok(
+  $$ select public.save_my_profile(
+       'Minimal Member',
+       '',
+       '',
+       '',
+       '',
+       'either',
+       true,
+       '',
+       true,
+       false,
+       array['20000000-0000-4000-8000-000000000001']::uuid[],
+       array['20000000-0000-4000-8000-000000000002']::uuid[],
+       array['https://bad.example'],
+       '{}'::text[]
+     ) $$,
+  '23514',
+  null,
+  'Custom skills reject URLs and markup-like unsafe input'
+);
+select throws_ok(
+  $$ select public.save_my_profile(
+       'Minimal Member',
+       '',
+       '',
+       '',
+       '',
+       'either',
+       true,
+       '',
+       true,
+       false,
+       '{}'::uuid[],
+       '{}'::uuid[],
+       '{}'::text[],
+       '{}'::text[]
+     ) $$,
+  '23514',
+  null,
+  'Members still need at least one teaching and one learning skill'
 );
 reset role;
 

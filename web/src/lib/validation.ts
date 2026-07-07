@@ -28,19 +28,60 @@ export const signInSchema = z.object({
   password: z.string().min(1, "Enter your password."),
 });
 
+const optionalText = (max: number, message: string) =>
+  z.preprocess((value) => (typeof value === "string" ? value.trim() : ""), z.string().max(max, message));
+
+const customSkillNames = z.array(z.string())
+  .transform((values) => values.map((value) => value.trim().replace(/\s+/g, " ")).filter(Boolean))
+  .superRefine((values, context) => {
+    values.forEach((value, index) => {
+      if (value.length < 2 || value.length > 80) {
+        context.addIssue({
+          code: "custom",
+          message: "Custom skills must be 2-80 characters.",
+          path: [index],
+        });
+      }
+      if (!/[A-Za-z0-9]/.test(value) || /(^|\s)https?:\/\//i.test(value) || /(^|\s)www\./i.test(value) || /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(value) || /[<>]/.test(value)) {
+        context.addIssue({
+          code: "custom",
+          message: "Custom skills cannot contain URLs, emails, or markup.",
+          path: [index],
+        });
+      }
+    });
+  });
+
 export const profileSchema = z.object({
   displayName: z.string().trim().min(1, "Enter your display name.").max(80),
-  major: z.string().trim().min(2, "Enter your major or area of study.").max(120),
-  biography: z.string().trim().min(20, "Write at least 20 characters about yourself.").max(800),
-  location: z.string().trim().min(2, "Enter your general location.").max(120),
-  availability: z.string().trim().min(2, "Share when you are generally available.").max(240),
+  major: optionalText(120, "Keep your major or area of study under 120 characters."),
+  biography: optionalText(800, "Keep your biography under 800 characters."),
+  location: optionalText(120, "Keep your general location under 120 characters."),
+  availability: optionalText(240, "Keep your availability under 240 characters."),
   meetingPreference: z.enum(["online", "in-person", "either"]),
   beginnerFriendly: z.boolean(),
-  learningStyle: z.string().trim().min(2, "Describe how you like to teach or learn.").max(240),
+  learningStyle: optionalText(240, "Keep your teaching and learning style under 240 characters."),
   discoverable: z.boolean(),
   showLocation: z.boolean(),
-  teachingSkillIds: z.array(z.string().uuid()).min(1, "Choose at least one skill you can share."),
-  learningSkillIds: z.array(z.string().uuid()).min(1, "Choose at least one skill you want to learn."),
+  teachingSkillIds: z.array(z.string().uuid()),
+  learningSkillIds: z.array(z.string().uuid()),
+  customTeachingSkills: customSkillNames,
+  customLearningSkills: customSkillNames,
+}).superRefine((values, context) => {
+  if (values.teachingSkillIds.length + values.customTeachingSkills.length < 1) {
+    context.addIssue({
+      code: "custom",
+      path: ["teachingSkillIds"],
+      message: "Choose or add at least one skill you can share.",
+    });
+  }
+  if (values.learningSkillIds.length + values.customLearningSkills.length < 1) {
+    context.addIssue({
+      code: "custom",
+      path: ["learningSkillIds"],
+      message: "Choose or add at least one skill you want to learn.",
+    });
+  }
 });
 
 export const requestSchema = z.object({
