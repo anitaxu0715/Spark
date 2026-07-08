@@ -26,7 +26,6 @@ test("completes the critical workflow across isolated member contexts", async ({
   await expect(requestDialog).toBeVisible();
   await requestDialog.getByLabel("What would you like to learn?").selectOption({ label: "Lightroom" });
   await requestDialog.getByLabel("Message for Maya").fill(message);
-  await requestDialog.getByLabel("Preferred date and time").fill(futureLocalDateTime());
   await requestDialog.getByLabel("Session format").selectOption("online");
   await requestDialog.getByRole("button", { name: "Send learning request" }).click();
   await expect(anita.getByRole("heading", { name: "Request sent" })).toBeVisible();
@@ -65,7 +64,10 @@ test("completes the critical workflow across isolated member contexts", async ({
   const rescheduled = anita.getByRole("article").filter({ hasText: marker });
   await rescheduled.getByRole("button", { name: "Mark completed" }).click();
   await expect(rescheduled.getByText(/^completed$/i)).toBeVisible();
-  await rescheduled.getByRole("button", { name: "Leave private feedback" }).click();
+  const feedbackToggle = rescheduled.getByRole("button", { name: "Leave private feedback" });
+  await expect(feedbackToggle).toBeVisible();
+  await feedbackToggle.click();
+  await expect(rescheduled.getByText("Private session feedback")).toBeVisible();
   const feedback = rescheduled.getByText("Private session feedback").locator("..");
   await feedback.getByLabel("Yes").nth(0).check();
   await feedback.getByLabel("Yes").nth(1).check();

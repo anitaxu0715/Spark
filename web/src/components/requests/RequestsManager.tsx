@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import type { LearningRequest, RequestStatus } from "@/types";
 
 const statuses: Array<"all" | RequestStatus> = ["all", "pending", "accepted", "completed", "declined", "cancelled"];
+const dateFormatter = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" });
 
 export function RequestsManager({ requests, initialView = "incoming" }: { requests: LearningRequest[]; initialView?: "incoming" | "sent" }) {
   const [direction, setDirection] = useState(initialView);
@@ -73,9 +74,18 @@ export function RequestsManager({ requests, initialView = "incoming" }: { reques
                 </div>
                 <StatusBadge status={request.status} />
               </div>
-              <blockquote className="mt-5 rounded-2xl bg-cream-100 p-4 text-sm leading-6 text-ink-600">“{request.message}”</blockquote>
+              <blockquote className="mt-5 rounded-2xl bg-cream-100 p-4 text-sm leading-6 text-ink-600">
+                {request.message ? `"${request.message}"` : "No message added yet."}
+              </blockquote>
               <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
-                <div><dt className="eyebrow">Suggested time</dt><dd className="mt-1.5 font-semibold text-indigo-950"><time dateTime={request.preferredTime} suppressHydrationWarning>{new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(request.preferredTime))}</time></dd></div>
+                <div>
+                  <dt className="eyebrow">Suggested time</dt>
+                  <dd className="mt-1.5 font-semibold text-indigo-950">
+                    {request.preferredTime ? (
+                      <time dateTime={request.preferredTime} suppressHydrationWarning>{dateFormatter.format(new Date(request.preferredTime))}</time>
+                    ) : "Not set yet"}
+                  </dd>
+                </div>
                 <div><dt className="eyebrow">Format</dt><dd className="mt-1.5 font-semibold capitalize text-indigo-950">{request.format}</dd></div>
               </dl>
               {request.format === "in-person" && <div className="mt-5"><SafetyNotice compact /></div>}
@@ -83,7 +93,7 @@ export function RequestsManager({ requests, initialView = "incoming" }: { reques
                 <section className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
                   <h3 className="font-bold text-indigo-950">Pending reschedule proposal</h3>
                   <p className="mt-2 text-sm text-ink-600">
-                    {new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(pendingProposal.proposedAt))}
+                    {dateFormatter.format(new Date(pendingProposal.proposedAt))}
                     {" · "}{pendingProposal.proposedFormat}
                   </p>
                   {pendingProposal.note && <p className="mt-2 text-sm text-ink-500">{pendingProposal.note}</p>}

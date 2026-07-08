@@ -89,7 +89,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <aside className="lg:sticky lg:top-26 lg:self-start">
           <div className="rounded-[2rem] border border-cream-200 bg-white p-6 shadow-card">
             <p className="text-xl font-bold text-indigo-950">Interested in {profile.teachSkills[0]}?</p>
-            <p className="mt-2 text-sm leading-6 text-ink-500">Send a specific, friendly note. They can accept or decline without pressure.</p>
+            <p className="mt-2 text-sm leading-6 text-ink-500">Send a friendly note to start the conversation. You can coordinate timing after they accept.</p>
             <div className="mt-6"><ProfileActions offeredSkills={currentProfile.teachSkillOptions} profile={profile} /></div>
           </div>
           <div className="mt-5"><SafetyNotice /></div>

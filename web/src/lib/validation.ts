@@ -32,18 +32,52 @@ export const signInSchema = z.object({
 const optionalText = (max: number, message: string) =>
   z.preprocess((value) => (typeof value === "string" ? value.trim() : ""), z.string().max(max, message));
 
+function normalizeLocalDateTime(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const match = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})[ T](\d{1,2}):(\d{2})$/.exec(trimmed);
+  if (!match) return null;
+  const [, yearText, monthText, dayText, hourText, minuteText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const candidate = new Date(year, month - 1, day, hour, minute);
+  if (
+    candidate.getFullYear() !== year
+    || candidate.getMonth() !== month - 1
+    || candidate.getDate() !== day
+    || candidate.getHours() !== hour
+    || candidate.getMinutes() !== minute
+  ) {
+    return null;
+  }
+  return `${yearText.padStart(4, "0")}-${monthText.padStart(2, "0")}-${dayText.padStart(2, "0")}T${hourText.padStart(2, "0")}:${minuteText.padStart(2, "0")}`;
+}
+
 const localDateTimeSchema = z.string()
   .trim()
-  .transform((value) => value.replace(/\s+/, "T"))
-  .refine((value) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value), "Use YYYY-MM-DD HH:MM.")
-  .refine((value) => !Number.isNaN(new Date(value).getTime()), "Use a valid date and time.")
+  .transform((value, context) => {
+    const normalized = normalizeLocalDateTime(value);
+    if (!normalized) {
+      context.addIssue({ code: "custom", message: "Use YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM." });
+      return z.NEVER;
+    }
+    return normalized;
+  })
   .refine((value) => new Date(value) > new Date(), "Choose a future date and time.");
 
 const optionalLocalDateTimeSchema = z.string()
   .trim()
-  .transform((value) => value ? value.replace(/\s+/, "T") : "")
-  .refine((value) => !value || /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value), "Use YYYY-MM-DD HH:MM.")
-  .refine((value) => !value || !Number.isNaN(new Date(value).getTime()), "Use a valid date and time.");
+  .transform((value, context) => {
+    const normalized = normalizeLocalDateTime(value);
+    if (normalized === null) {
+      context.addIssue({ code: "custom", message: "Use YYYY-MM-DD HH:MM or YYYY/MM/DD HH:MM, or leave this blank." });
+      return z.NEVER;
+    }
+    return normalized;
+  });
 
 const customSkillNames = z.array(z.string())
   .transform((values) => values.map((value) => value.trim().replace(/\s+/g, " ")).filter(Boolean))
@@ -101,8 +135,8 @@ export const profileSchema = z.object({
 export const requestSchema = z.object({
   recipientId: z.string().uuid(),
   requestedSkillId: z.string().uuid("Choose a skill."),
-  message: z.string().trim().min(20, "Write at least 20 characters.").max(1000),
-  preferredAt: localDateTimeSchema,
+  message: z.string().trim().max(1000),
+  preferredAt: optionalLocalDateTimeSchema.refine((value) => !value || new Date(value) > new Date(), "Choose a future date and time."),
   format: z.enum(["online", "in-person"]),
   offeredSkillId: z.union([z.string().uuid(), z.literal("")]).optional(),
 });

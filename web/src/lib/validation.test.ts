@@ -83,6 +83,21 @@ describe("safe redirects", () => {
 });
 
 describe("domain form validation", () => {
+  it("accepts lightweight request intros without a scheduled time", () => {
+    const result = requestSchema.safeParse({
+      recipientId: "30000000-0000-4000-8000-000000000002",
+      requestedSkillId: "20000000-0000-4000-8000-000000000001",
+      message: "Hi",
+      preferredAt: "",
+      format: "online",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.message).toBe("Hi");
+      expect(result.data.preferredAt).toBe("");
+    }
+  });
+
   it("accepts English numeric date-time text and normalizes it for requests", () => {
     const future = new Date(Date.now() + 48 * 60 * 60 * 1000);
     const yyyy = future.getFullYear();
@@ -94,7 +109,7 @@ describe("domain form validation", () => {
       recipientId: "30000000-0000-4000-8000-000000000002",
       requestedSkillId: "20000000-0000-4000-8000-000000000001",
       message: "This message is long enough to explain the learning goal.",
-      preferredAt: `${yyyy}-${mm}-${dd} ${hh}:${min}`,
+      preferredAt: `${yyyy}/${mm}/${dd} ${hh}:${min}`,
       format: "online",
     });
     expect(result.success).toBe(true);

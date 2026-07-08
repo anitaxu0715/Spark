@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(39);
+select plan(40);
 
 select is(
   (
@@ -240,6 +240,21 @@ select lives_ok(
        'online'
      ) $$,
   'A verified sender can create a valid request'
+);
+
+select lives_ok(
+  $$ insert into public.learning_requests (
+       id, sender_id, recipient_id, requested_skill_id, message, preferred_at, format
+     ) values (
+       '90000000-0000-4000-8000-000000000011',
+       '30000000-0000-4000-8000-000000000001',
+       '30000000-0000-4000-8000-000000000004',
+       '20000000-0000-4000-8000-000000000004',
+       'Hi',
+       null,
+       'online'
+     ) $$,
+  'A verified sender can create a lightweight request without a scheduled time'
 );
 
 select throws_ok(

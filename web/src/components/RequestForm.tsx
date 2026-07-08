@@ -31,12 +31,12 @@ export function RequestForm({ profile, offeredSkills }: { profile: Profile; offe
           {profile.teachSkillOptions.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
         </select>
       </FormField>
-      <FormField id="request-message" label={`Message for ${profile.name.split(" ")[0]}`} error={state.fieldErrors?.message?.[0]}>
-        <textarea className="field min-h-28 resize-y" id="request-message" maxLength={1000} name="message" placeholder="Introduce yourself and share what you hope to learn." required />
+      <FormField id="request-message" label={`Message for ${profile.name.split(" ")[0]} (optional)`} error={state.fieldErrors?.message?.[0]} hint="A short hello is enough. Please be kind and clear with new people.">
+        <textarea className="field min-h-28 resize-y" id="request-message" maxLength={1000} name="message" placeholder="Hi! I’m interested in learning this if you’re open to exchanging skills." />
       </FormField>
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="request-time" label="Preferred date and time" error={state.fieldErrors?.preferredAt?.[0]} hint="Use English numeric format, e.g. 2026-07-10 14:30.">
-          <input className="field" id="request-time" inputMode="numeric" name="preferredAt" pattern="\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}" placeholder="YYYY-MM-DD HH:MM" required type="text" />
+        <FormField id="request-time" label="Preferred date and time (optional)" error={state.fieldErrors?.preferredAt?.[0]} hint="Leave blank if you want to coordinate later. If you have a time, use 2026-07-10 14:30 or 2026/07/10 14:30.">
+          <input className="field" id="request-time" inputMode="numeric" name="preferredAt" pattern="\d{4}[-/]\d{1,2}[-/]\d{1,2}[ T]\d{1,2}:\d{2}" placeholder="Optional, e.g. 2026/07/10 14:30" type="text" />
         </FormField>
         <FormField id="request-format" label="Session format">
           <select className="field" id="request-format" name="format" onChange={(event) => setFormat(event.target.value as "online" | "in-person")} value={format}>

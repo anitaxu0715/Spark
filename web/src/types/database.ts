@@ -275,7 +275,7 @@ export type Database = {
           id: string
           message: string
           offered_skill_id: string | null
-          preferred_at: string
+          preferred_at: string | null
           recipient_id: string
           requested_skill_id: string
           sender_id: string
@@ -290,7 +290,7 @@ export type Database = {
           id?: string
           message: string
           offered_skill_id?: string | null
-          preferred_at: string
+          preferred_at?: string | null
           recipient_id: string
           requested_skill_id: string
           sender_id: string
@@ -305,7 +305,7 @@ export type Database = {
           id?: string
           message?: string
           offered_skill_id?: string | null
-          preferred_at?: string
+          preferred_at?: string | null
           recipient_id?: string
           requested_skill_id?: string
           sender_id?: string

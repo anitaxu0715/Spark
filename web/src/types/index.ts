@@ -53,7 +53,7 @@ export interface LearningRequest {
   skill: string;
   skillId: string;
   message: string;
-  preferredTime: string;
+  preferredTime: string | null;
   format: Exclude<LearningFormat, "either">;
   offeredSkill?: string;
   status: RequestStatus;

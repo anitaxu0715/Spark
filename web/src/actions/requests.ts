@@ -34,7 +34,7 @@ export async function createLearningRequestAction(_state: ActionState, formData:
     requested_skill_id: values.requestedSkillId,
     offered_skill_id: values.offeredSkillId || null,
     message: values.message,
-    preferred_at: new Date(values.preferredAt).toISOString(),
+    preferred_at: values.preferredAt ? new Date(values.preferredAt).toISOString() : null,
     format: values.format,
   });
   if (error) {
