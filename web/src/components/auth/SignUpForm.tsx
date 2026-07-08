@@ -9,8 +9,11 @@ export function SignUpForm() {
   const [state, action] = useActionState(signUpAction, {});
   return (
     <form action={action} className="space-y-5" noValidate>
-      <FormField id="signup-email" label="Academic email" error={state.fieldErrors?.email?.[0]} hint="Use your university-issued email address.">
+      <FormField id="signup-email" label="Email" error={state.fieldErrors?.email?.[0]} hint="Use an academic email, or use a personal email with an invite code.">
         <input autoComplete="email" className="field" id="signup-email" name="email" type="email" aria-invalid={Boolean(state.fieldErrors?.email)} required />
+      </FormField>
+      <FormField id="signup-invite-code" label="Invite code (optional for academic email)" error={state.fieldErrors?.inviteCode?.[0]} hint="Required for Gmail and other non-academic addresses.">
+        <input autoComplete="off" className="field" id="signup-invite-code" name="inviteCode" aria-invalid={Boolean(state.fieldErrors?.inviteCode)} />
       </FormField>
       <FormField id="signup-password" label="Password" error={state.fieldErrors?.password?.[0]} hint="At least 10 characters with uppercase, lowercase, number, and symbol.">
         <input autoComplete="new-password" className="field" id="signup-password" name="password" type="password" aria-invalid={Boolean(state.fieldErrors?.password)} required />

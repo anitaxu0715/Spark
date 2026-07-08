@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(34);
+select plan(39);
 
 select is(
   (
@@ -14,7 +14,7 @@ select is(
         'universities', 'university_domains', 'memberships', 'profiles',
         'profile_locations', 'skills', 'profile_skills', 'learning_requests',
         'request_status_events', 'saved_profiles', 'notifications', 'blocks',
-        'reports', 'session_feedback'
+        'reports', 'session_feedback', 'invite_codes', 'invite_redemptions'
       )
       and not c.relrowsecurity
   ),
@@ -36,6 +36,79 @@ select is(
   ),
   '{}'::jsonb,
   'The Auth hook allows an active academic development domain'
+);
+
+insert into public.invite_codes (id, code_hash, label, university_id, max_uses) values (
+  '11000000-0000-4000-8000-000000000099',
+  'e810e9872177ea1fd0a13e4d4e4217c18a40b38a6d6bdb0e8f1ef9e4152e4701',
+  'pgTAP invite',
+  '10000000-0000-4000-8000-000000000099',
+  2
+);
+
+select is(
+  private.before_user_created(
+    '{"user":{"email":"student@gmail.com","raw_user_meta_data":{"invite_code_hash":"bad"}}}'::jsonb
+  )->'error'->>'http_code',
+  '403',
+  'The Auth hook rejects invalid invite codes'
+);
+
+select is(
+  private.before_user_created(
+    '{"user":{"email":"student@gmail.com","raw_user_meta_data":{"invite_code_hash":"e810e9872177ea1fd0a13e4d4e4217c18a40b38a6d6bdb0e8f1ef9e4152e4701"}}}'::jsonb
+  ),
+  '{}'::jsonb,
+  'The Auth hook allows a valid invite code for a Gmail address'
+);
+
+select is(
+  private.before_user_created(
+    '{"user":{"email":"metadata-student@gmail.com","user_metadata":{"invite_code_hash":"e810e9872177ea1fd0a13e4d4e4217c18a40b38a6d6bdb0e8f1ef9e4152e4701"}}}'::jsonb
+  ),
+  '{}'::jsonb,
+  'The Auth hook accepts Supabase Auth user_metadata invite hashes'
+);
+
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password,
+  email_confirmed_at, confirmation_sent_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  '90000000-0000-4000-8000-000000000099',
+  'authenticated',
+  'authenticated',
+  'invited@gmail.com',
+  extensions.crypt('TestPassword!2026', extensions.gen_salt('bf')),
+  now(),
+  now(),
+  '{"provider":"email","providers":["email"]}',
+  '{"display_name":"Invited Gmail","invite_code_hash":"e810e9872177ea1fd0a13e4d4e4217c18a40b38a6d6bdb0e8f1ef9e4152e4701"}',
+  now(),
+  now()
+);
+
+select is(
+  (
+    select verified_email_domain
+    from public.memberships
+    where user_id = '90000000-0000-4000-8000-000000000099'
+  ),
+  'gmail.com',
+  'Confirmed invited Gmail users receive a verified membership'
+);
+
+select is(
+  (
+    select jsonb_build_object('used_count', used_count, 'redemptions', (
+      select count(*) from public.invite_redemptions where invite_code_id = '11000000-0000-4000-8000-000000000099'
+    ))
+    from public.invite_codes
+    where id = '11000000-0000-4000-8000-000000000099'
+  ),
+  '{"used_count":1,"redemptions":1}'::jsonb,
+  'Invite redemption increments usage exactly once'
 );
 
 set local role anon;

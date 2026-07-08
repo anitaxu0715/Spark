@@ -1,13 +1,13 @@
 # Spark
 
-Spark is a peer-to-peer skill exchange for university communities. Verified students can share practical skills, discover approachable peers, and coordinate focused learning sessions without marketplace or popularity mechanics.
+Spark is a peer-to-peer skill exchange for university communities and invited beta testers. Verified members can share practical skills, discover approachable peers, and coordinate focused learning sessions without marketplace or popularity mechanics.
 
 Phase 3 extends the durable multi-user beta with operational tooling, account lifecycle controls, and cross-browser acceptance coverage.
 
 ## Product capabilities
 
-- Academic email-and-password sign-up, confirmation, sign-in, sign-out, and password recovery
-- Trusted university membership derived from confirmed authentication data
+- Academic email or invite-code sign-up, confirmation, sign-in, sign-out, and password recovery
+- Trusted membership derived from confirmed authentication data
 - Authenticated, privacy-aware member discovery with URL-backed filters
 - Database-backed profiles, curated teaching and learning skills, and saved profiles
 - Participant-only learning requests with enforced lifecycle transitions and cancellation

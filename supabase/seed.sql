@@ -15,6 +15,15 @@ insert into public.university_domains (university_id, domain, is_development) va
   ('10000000-0000-4000-8000-000000000005', 'seattlecolleges.edu', false)
 on conflict (domain) do nothing;
 
+insert into public.invite_codes (id, code_hash, label, university_id, max_uses) values (
+  '11000000-0000-4000-8000-000000000001',
+  '6158c077b3a3ce28083f1dc291131644317cb911bd0810f1f87db352c0db2f08',
+  'Local browser test invite',
+  '10000000-0000-4000-8000-000000000099',
+  100
+)
+on conflict (id) do nothing;
+
 insert into public.skills (id, name, category) values
   ('20000000-0000-4000-8000-000000000001', 'Photography', 'Creative'),
   ('20000000-0000-4000-8000-000000000002', 'Python Basics', 'Technology'),

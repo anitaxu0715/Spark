@@ -16,7 +16,7 @@ export default async function SignUpPage() {
     <AuthShell
       eyebrow="Join the community"
       title="Create your Spark account"
-      description="Academic email confirmation keeps the beta focused on university communities."
+      description="Academic email confirmation keeps Spark trusted. Invited beta testers can also join with a personal email and invite code."
       footer={<>Already have an account? <Link className="font-bold text-indigo-800" href="/auth/sign-in">Sign in</Link></>}
     >
       <SignUpForm />

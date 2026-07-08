@@ -23,11 +23,11 @@ export default async function CurrentProfilePage() {
         <section className="rounded-[2rem] bg-indigo-950 p-7 text-white shadow-card">
           <Avatar color={profile.color} initials={profile.initials} size="lg" />
           <h2 className="mt-6 text-3xl font-bold">{profile.name}</h2>
-          <p className="mt-2 text-sm font-semibold text-indigo-200">{profile.major} · {profile.university}</p>
+          <p className="mt-2 text-sm font-semibold text-indigo-200">{[profile.major, profile.university].filter(Boolean).join(" · ")}</p>
           {profile.location && <p className="mt-1 text-sm text-indigo-200">{profile.location}</p>}
           <p className="mt-6 leading-7 text-indigo-100">{profile.bio}</p>
           <div className="mt-6 rounded-2xl bg-white/10 p-4">
-            <p className="text-xs font-bold uppercase tracking-wide text-indigo-200">Academic verification</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-indigo-200">Account verification</p>
             <p className="mt-1 text-sm font-semibold">Verified {viewer.membership.verified_email_domain}</p>
             <p className="mt-2 text-xs leading-5 text-indigo-200">Verification comes from your confirmed account email and cannot be changed here.</p>
           </div>

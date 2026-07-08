@@ -2,7 +2,7 @@
 
 ## Primary journey
 
-1. A visitor signs up with an allowlisted academic email.
+1. A visitor signs up with an allowlisted academic email or a personal email plus invite code.
 2. They confirm the email and complete onboarding.
 3. They discover verified members through URL-backed filters.
 4. They open `/people/[slug]`, review privacy-safe profile details, and send a request.

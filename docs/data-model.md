@@ -4,15 +4,16 @@
 
 - `universities` stores active institutions.
 - `university_domains` stores allowlisted domains and marks development-only entries.
+- `invite_codes` stores hashed invite codes for non-academic beta testers; `invite_redemptions` records confirmed use.
 - `memberships` is the trusted verification record linked to `auth.users`.
 - `profiles` stores public and preference data, not authentication credentials.
 - `profile_locations` isolates the location field behind visibility-specific RLS.
 
-An Auth hook rejects new users outside the allowlist. An `auth.users` trigger creates the base profile and creates membership only after email confirmation.
+An Auth hook rejects new users outside the allowlist unless they provide a valid invite-code hash. An `auth.users` trigger creates the base profile and creates membership only after email confirmation.
 
 ## Skills and profiles
 
-`skills` is a curated, case-normalized catalog. `profile_skills` joins a profile to a skill in either teaching or learning mode. Members cannot create arbitrary catalog entries.
+`skills` is a curated, case-normalized catalog with safely created `Community` entries from the profile RPC. `profile_skills` joins a profile to a skill in either teaching or learning mode. Members cannot write the catalog directly.
 
 ## Learning requests
 

@@ -177,6 +177,95 @@ export type Database = {
           },
         ]
       }
+      invite_codes: {
+        Row: {
+          active: boolean
+          code_hash: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          label: string
+          max_uses: number
+          university_id: string
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          code_hash: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          label?: string
+          max_uses?: number
+          university_id: string
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          code_hash?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          label?: string
+          max_uses?: number
+          university_id?: string
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invite_codes_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invite_redemptions: {
+        Row: {
+          email_domain: string
+          id: string
+          invite_code_id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          email_domain: string
+          id?: string
+          invite_code_id: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          email_domain?: string
+          id?: string
+          invite_code_id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_redemptions_invite_code_id_fkey"
+            columns: ["invite_code_id"]
+            isOneToOne: false
+            referencedRelation: "invite_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       learning_requests: {
         Row: {
           cancellation_reason: string | null
@@ -1107,6 +1196,10 @@ export type Database = {
           teaching_skill_ids: string[]
         }
         Returns: undefined
+      }
+      validate_invite_code: {
+        Args: { invite_code_hash: string }
+        Returns: boolean
       }
     }
     Enums: {

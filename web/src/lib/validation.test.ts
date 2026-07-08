@@ -28,6 +28,17 @@ describe("authentication validation", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("accepts an optional invite code during signup", () => {
+    const result = signUpSchema.safeParse({
+      email: "friend@gmail.com",
+      password: "StrongPass!2026",
+      confirmPassword: "StrongPass!2026",
+      inviteCode: "  local-gmail-invite-2026  ",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.inviteCode).toBe("local-gmail-invite-2026");
+  });
 });
 
 describe("Phase 3 operational validation", () => {

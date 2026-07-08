@@ -28,20 +28,28 @@ test.describe("authentication acceptance", () => {
     await expect(page.getByText("This reset link has expired. Request a new password reset email.")).toBeVisible();
   });
 
-  test("confirms a new academic account and completes password recovery through Mailpit", async ({ page }) => {
+  test("confirms a new invited personal account and completes password recovery through Mailpit", async ({ page }) => {
     const suffix = `${Date.now()}-${Math.floor(Math.random() * 10_000)}`;
-    const email = `browser-${suffix}@spark.test`;
+    const email = `browser-${suffix}@gmail.com`;
     const originalPassword = "BrowserFlow!2026";
     const updatedPassword = "UpdatedFlow!2026";
 
     await page.goto("/auth/sign-up");
-    await page.getByLabel("Academic email").fill(`browser-${suffix}@example.com`);
+    await page.getByLabel("Email", { exact: true }).fill(`browser-${suffix}@example.com`);
     await page.getByLabel("Password", { exact: true }).fill(originalPassword);
     await page.getByLabel("Confirm password").fill(originalPassword);
     await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page.getByText("Use an eligible academic email address to join Spark.")).toBeVisible();
+    await expect(page.getByText("Use a valid invite code with non-academic email addresses.")).toBeVisible();
 
-    await page.getByLabel("Academic email").fill(email);
+    await page.getByLabel("Email", { exact: true }).fill(`browser-${suffix}@example.com`);
+    await page.getByLabel("Invite code").fill("not-a-real-code");
+    await page.getByLabel("Password", { exact: true }).fill(originalPassword);
+    await page.getByLabel("Confirm password").fill(originalPassword);
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page.getByText("This invite code is invalid, expired, or fully used.")).toBeVisible();
+
+    await page.getByLabel("Email", { exact: true }).fill(email);
+    await page.getByLabel("Invite code").fill("local-gmail-invite-2026");
     await page.getByLabel("Password", { exact: true }).fill(originalPassword);
     await page.getByLabel("Confirm password").fill(originalPassword);
     await page.getByRole("button", { name: "Create account" }).click();

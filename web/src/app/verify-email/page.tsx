@@ -11,8 +11,8 @@ export default async function VerifyEmailPage() {
   return (
     <AuthShell
       eyebrow="One more step"
-      title="Confirm your academic email"
-      description="Open the confirmation link we sent you. Your verified university membership is created from that trusted confirmation."
+      title="Confirm your email"
+      description="Open the confirmation link we sent you. Your verified Spark membership is created from that trusted confirmation."
     >
       <div className="text-center">
         <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-coral-100 text-2xl text-coral-800" aria-hidden="true">✉</span>

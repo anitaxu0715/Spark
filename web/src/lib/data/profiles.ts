@@ -58,7 +58,7 @@ export function mapProfileRows(
       slug: row.slug,
       name: row.display_name,
       initials: row.initials,
-      university: row.universities?.name ?? "Verified academic member",
+      university: row.universities?.name ?? "Verified member",
       major: row.major,
       location: locationByProfile.get(row.id) ?? null,
       bio: row.biography,

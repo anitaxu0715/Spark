@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { actionError } from "@/lib/action-errors";
@@ -17,11 +18,16 @@ import {
 
 const configurationMessage = "Spark is not connected to Supabase. Complete the local environment setup and try again.";
 
+function inviteHash(inviteCode: string) {
+  return createHash("sha256").update(inviteCode.trim().toLowerCase()).digest("hex");
+}
+
 export async function signUpAction(_state: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = signUpSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
+    inviteCode: formData.get("inviteCode"),
   });
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
 
@@ -30,7 +36,7 @@ export async function signUpAction(_state: ActionState, formData: FormData): Pro
   if (!supabase || !config) return { error: configurationMessage };
 
   const domain = extractEmailDomain(parsed.data.email);
-  if (!domain) return { fieldErrors: { email: ["Enter a valid academic email address."] } };
+  if (!domain) return { fieldErrors: { email: ["Enter a valid email address."] } };
   const { data: eligibleDomain, error: domainError } = await supabase
     .from("university_domains")
     .select("domain")
@@ -38,14 +44,29 @@ export async function signUpAction(_state: ActionState, formData: FormData): Pro
     .maybeSingle();
 
   if (domainError) return { error: "Academic eligibility could not be checked. Please try again." };
-  if (!eligibleDomain) return { fieldErrors: { email: ["Use an eligible academic email address to join Spark."] } };
+  let inviteCodeHash: string | null = null;
+  if (!eligibleDomain) {
+    const inviteCode = parsed.data.inviteCode?.trim();
+    if (!inviteCode) {
+      return { fieldErrors: { inviteCode: ["Use a valid invite code with non-academic email addresses."] } };
+    }
+    inviteCodeHash = inviteHash(inviteCode);
+    const { data: inviteValid, error: inviteError } = await supabase.rpc("validate_invite_code", {
+      invite_code_hash: inviteCodeHash,
+    });
+    if (inviteError) return { error: "Invite eligibility could not be checked. Please try again." };
+    if (!inviteValid) return { fieldErrors: { inviteCode: ["This invite code is invalid, expired, or fully used."] } };
+  }
 
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       emailRedirectTo: `${config.siteUrl}/auth/confirm?next=/onboarding`,
-      data: { display_name: parsed.data.email.split("@")[0] },
+      data: {
+        display_name: parsed.data.email.split("@")[0],
+        ...(inviteCodeHash ? { invite_code_hash: inviteCodeHash } : {}),
+      },
     },
   });
 

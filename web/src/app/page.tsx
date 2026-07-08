@@ -44,7 +44,7 @@ export default async function Home() {
               Spark helps students turn everyday knowledge into meaningful connections. Share a skill, follow your curiosity, and learn with someone who remembers being new.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link className={buttonStyles("primary", "px-7")} href={primaryHref}>{viewer.user ? "Discover skills" : "Join with academic email"}</Link>
+              <Link className={buttonStyles("primary", "px-7")} href={primaryHref}>{viewer.user ? "Discover skills" : "Join Spark"}</Link>
               <Link className={buttonStyles("secondary", "px-7")} href={secondaryHref}>{viewer.user ? "View your profile" : "Sign in"}</Link>
             </div>
             <p className="mt-5 text-sm text-ink-500">Free to explore · No expertise required · You choose how to meet</p>

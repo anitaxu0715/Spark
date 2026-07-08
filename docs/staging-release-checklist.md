@@ -13,14 +13,14 @@
 - Link the CLI only after confirming the staging project reference.
 - Apply migrations with the Supabase migration workflow; do not run the deterministic local seed.
 - Create the first platform administrator through a reviewed database-owner operation.
-- Add only approved academic domains. Never add `spark.test` outside local development.
+- Add only approved academic domains and reviewed invite-code hashes. Never add `spark.test` or local test invite codes outside local development.
 
 ## Authentication and email
 
 - Set the Site URL to the exact staging origin.
 - Allow only the required confirmation and recovery callback URLs.
 - Configure an approved SMTP provider and sender domain.
-- Verify signup confirmation, expired links, recovery, and enumeration-resistant responses.
+- Verify academic signup, invited personal-email signup, invalid invite rejection, confirmation, expired links, recovery, and enumeration-resistant responses.
 - Review password, OTP expiration, and email-rate-limit settings.
 
 ## Web application

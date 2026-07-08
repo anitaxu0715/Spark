@@ -50,7 +50,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Sea
       <div className="max-w-2xl">
         <p className="eyebrow text-coral-600">Verified community</p>
         <h1 className="mt-4 text-4xl font-bold tracking-tight text-indigo-950 sm:text-5xl">Follow your curiosity</h1>
-        <p className="mt-4 leading-7 text-ink-500">Discover academically verified members through the skills they share and want to learn.</p>
+        <p className="mt-4 leading-7 text-ink-500">Discover verified members through the skills they share and want to learn.</p>
       </div>
       <div className="mt-10"><DiscoveryFilters skills={skills} values={values} /></div>
       <p className="mt-8 text-sm font-semibold text-ink-500" aria-live="polite">{results.length} {results.length === 1 ? "person" : "people"} found</p>

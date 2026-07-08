@@ -4,7 +4,7 @@
 
 Supabase Auth owns credentials, email confirmation, and sessions. The application uses only the project URL and publishable key. No service-role or secret key is needed.
 
-Academic verification is not profile metadata. The trusted `memberships` row is derived from a confirmed `auth.users.email` whose domain belongs to an active university. Members have no insert or update grant on memberships.
+Verification is not profile metadata. The trusted `memberships` row is derived from either a confirmed `auth.users.email` whose domain belongs to an active university or a confirmed invited account that redeemed a valid invite code. Members have no insert or update grant on memberships.
 
 ## Authorization boundaries
 
@@ -32,7 +32,7 @@ Column privileges provide an additional boundary:
 
 ## Authentication flows
 
-- Sign-up validates form structure, checks the public allowlist for useful feedback, and remains authoritatively enforced by the before-user-created Auth hook.
+- Sign-up validates form structure, checks the public allowlist or invite-code hash for useful feedback, and remains authoritatively enforced by the before-user-created Auth hook.
 - Confirmation and recovery callbacks exchange one-time tokens for cookie sessions.
 - Password recovery responses do not reveal whether an account exists.
 - Intended destinations accept only same-origin path values.
@@ -40,7 +40,7 @@ Column privileges provide an additional boundary:
 
 ## Operational assumptions
 
-Production must configure an approved SMTP provider, exact redirect URLs, institution domains, secure environment management, and a database-owner schedule for `private.purge_due_accounts()`. The purge function is not executable by anonymous, authenticated, or service-role clients. The development `spark.test` domain and seed credentials are local-only.
+Production must configure an approved SMTP provider, exact redirect URLs, institution domains, invite-code issuance procedures, secure environment management, and a database-owner schedule for `private.purge_due_accounts()`. The purge function is not executable by anonymous, authenticated, or service-role clients. The development `spark.test` domain, local invite code, and seed credentials are local-only.
 
 Audit events capture role changes, moderation transitions, case notes, restrictions, institution changes, deletion requests, cancellations, and purges. Audit rows are append-only to application clients. Moderators can read moderation-linked events; institution administrators can read events for assigned institutions; platform administrators can read all audit events.
 

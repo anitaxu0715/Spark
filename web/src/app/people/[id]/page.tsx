@@ -42,10 +42,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <h1 className="text-4xl font-bold tracking-tight text-indigo-950">{profile.name}</h1>
-                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-800">Academically verified</span>
+                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-800">Verified member</span>
                   {profile.beginnerFriendly && <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">Beginner-friendly</span>}
                 </div>
-                <p className="mt-2 font-semibold text-indigo-800">{profile.major} · {profile.university}</p>
+                <p className="mt-2 font-semibold text-indigo-800">{[profile.major, profile.university].filter(Boolean).join(" · ")}</p>
                 {profile.location && <p className="mt-2 text-sm text-ink-500">{profile.location}</p>}
               </div>
             </div>

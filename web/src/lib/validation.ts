@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const emailSchema = z.string().trim().email("Enter a valid academic email address.").max(254);
+export const emailSchema = z.string().trim().email("Enter a valid email address.").max(254);
 
 export function extractEmailDomain(email: string) {
   const parsed = emailSchema.safeParse(email);
@@ -18,6 +18,7 @@ export const signUpSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   confirmPassword: z.string(),
+  inviteCode: z.string().trim().max(120, "Invite codes must be 120 characters or fewer.").optional(),
 }).refine((values) => values.password === values.confirmPassword, {
   path: ["confirmPassword"],
   message: "Passwords do not match.",
