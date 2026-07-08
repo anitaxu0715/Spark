@@ -32,6 +32,19 @@ export const signInSchema = z.object({
 const optionalText = (max: number, message: string) =>
   z.preprocess((value) => (typeof value === "string" ? value.trim() : ""), z.string().max(max, message));
 
+const localDateTimeSchema = z.string()
+  .trim()
+  .transform((value) => value.replace(/\s+/, "T"))
+  .refine((value) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value), "Use YYYY-MM-DD HH:MM.")
+  .refine((value) => !Number.isNaN(new Date(value).getTime()), "Use a valid date and time.")
+  .refine((value) => new Date(value) > new Date(), "Choose a future date and time.");
+
+const optionalLocalDateTimeSchema = z.string()
+  .trim()
+  .transform((value) => value ? value.replace(/\s+/, "T") : "")
+  .refine((value) => !value || /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value), "Use YYYY-MM-DD HH:MM.")
+  .refine((value) => !value || !Number.isNaN(new Date(value).getTime()), "Use a valid date and time.");
+
 const customSkillNames = z.array(z.string())
   .transform((values) => values.map((value) => value.trim().replace(/\s+/g, " ")).filter(Boolean))
   .superRefine((values, context) => {
@@ -89,7 +102,7 @@ export const requestSchema = z.object({
   recipientId: z.string().uuid(),
   requestedSkillId: z.string().uuid("Choose a skill."),
   message: z.string().trim().min(20, "Write at least 20 characters.").max(1000),
-  preferredAt: z.string().datetime({ local: true }).refine((value) => new Date(value) > new Date(), "Choose a future date and time."),
+  preferredAt: localDateTimeSchema,
   format: z.enum(["online", "in-person"]),
   offeredSkillId: z.union([z.string().uuid(), z.literal("")]).optional(),
 });
@@ -118,7 +131,7 @@ export const reportSchema = z.object({
 
 export const rescheduleSchema = z.object({
   requestId: z.string().uuid(),
-  preferredAt: z.string().datetime({ local: true }).refine((value) => new Date(value) > new Date(), "Choose a future date and time."),
+  preferredAt: localDateTimeSchema,
   format: z.enum(["online", "in-person"]),
   note: z.string().trim().max(500).optional(),
 });
@@ -135,7 +148,7 @@ export const restrictionSchema = z.object({
   userId: z.string().uuid(),
   type: z.enum(["temporary_suspension", "indefinite_suspension"]),
   reason: z.string().trim().min(10).max(1000),
-  expiresAt: z.string().optional(),
+  expiresAt: optionalLocalDateTimeSchema.optional(),
 });
 
 export const domainSchema = z.object({

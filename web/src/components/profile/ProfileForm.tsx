@@ -18,6 +18,8 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
   const [state, action] = useActionState(saveProfileAction, {});
   const teachIds = new Set(profile.teachSkillOptions.map((skill) => skill.id));
   const learnIds = new Set(profile.learnSkillOptions.map((skill) => skill.id));
+  const customTeachSkills = profile.teachSkillOptions.filter((skill) => skill.category === "Community");
+  const customLearnSkills = profile.learnSkillOptions.filter((skill) => skill.category === "Community");
 
   useEffect(() => {
     if (state.success && onboarding) router.push("/profile");
@@ -55,7 +57,7 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
 
       <fieldset>
         <legend className="text-xl font-bold text-indigo-950">Skills</legend>
-        <p className="mt-2 text-sm text-ink-500">Choose from the curated catalog. You can be both a teacher and a learner.</p>
+        <p className="mt-2 text-sm text-ink-500">Choose from the curated catalog. Custom skills stay attached to your profile without becoming global checklist items.</p>
         <div className="mt-5 grid gap-6 md:grid-cols-2">
           <div>
             <p className="text-sm font-bold text-indigo-950">Skills I can share</p>
@@ -67,6 +69,19 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
                 </label>
               ))}
             </div>
+            {customTeachSkills.length > 0 && (
+              <div className="mt-4 rounded-2xl border border-coral-100 bg-coral-50 p-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-coral-700">Your custom skills</p>
+                <div className="mt-2 grid gap-2">
+                  {customTeachSkills.map((skill) => (
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-ink-600" key={`custom-teach-${skill.id}`}>
+                      <input className="size-4 accent-coral-500" defaultChecked name="teachingSkillIds" type="checkbox" value={skill.id} />
+                      {skill.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="mt-4">
               <FormField id="custom-teaching-skill" label="Add a skill I can share" error={state.fieldErrors?.customTeachingSkills?.[0]} hint="Optional. 2-80 characters; no URLs, emails, or markup.">
                 <input className="field" id="custom-teaching-skill" name="customTeachingSkills" placeholder="e.g. Crochet basics" />
@@ -84,6 +99,19 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
                 </label>
               ))}
             </div>
+            {customLearnSkills.length > 0 && (
+              <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-indigo-800">Your custom skills</p>
+                <div className="mt-2 grid gap-2">
+                  {customLearnSkills.map((skill) => (
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-ink-600" key={`custom-learn-${skill.id}`}>
+                      <input className="size-4 accent-indigo-800" defaultChecked name="learningSkillIds" type="checkbox" value={skill.id} />
+                      {skill.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="mt-4">
               <FormField id="custom-learning-skill" label="Add a skill I want to learn" error={state.fieldErrors?.customLearningSkills?.[0]} hint="Optional. Use the same name to reuse an existing community skill.">
                 <input className="field" id="custom-learning-skill" name="customLearningSkills" placeholder="e.g. Grant writing" />
@@ -123,7 +151,7 @@ export function ProfileForm({ profile, skills, onboarding = false }: ProfileForm
 
       {state.error && <p className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700" role="alert">{state.error}</p>}
       {state.success && !onboarding && <p className="rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800" role="status">{state.success}</p>}
-      <AuthSubmitButton pendingLabel="Saving profile…">{onboarding ? "Complete profile" : "Save profile"}</AuthSubmitButton>
+      <AuthSubmitButton pendingLabel="Saving profile...">{onboarding ? "Complete profile" : "Save profile"}</AuthSubmitButton>
     </form>
   );
 }

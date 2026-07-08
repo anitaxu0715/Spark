@@ -12,7 +12,8 @@ export function RescheduleForm({ requestId }: { requestId: string }) {
       <h3 className="font-bold text-indigo-950">Propose a new schedule</h3>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-semibold text-indigo-950">New date and time
-          <input className="mt-2 min-h-11 w-full rounded-xl border border-indigo-200 bg-white px-3" name="preferredAt" required type="datetime-local" />
+          <span className="mt-1 block text-xs font-normal text-ink-500">Use English numeric format, e.g. 2026-07-10 14:30.</span>
+          <input className="mt-2 min-h-11 w-full rounded-xl border border-indigo-200 bg-white px-3" inputMode="numeric" name="preferredAt" pattern="\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}" placeholder="YYYY-MM-DD HH:MM" required type="text" />
         </label>
         <label className="text-sm font-semibold text-indigo-950">Meeting format
           <select className="mt-2 min-h-11 w-full rounded-xl border border-indigo-200 bg-white px-3" name="format">

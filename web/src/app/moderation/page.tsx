@@ -26,7 +26,7 @@ export default async function ModerationQueuePage() {
                 <h2 className="font-bold text-indigo-950">{subject.display_name ?? "Unknown member"}</h2>
                 <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold uppercase text-indigo-800">{item.priority} · {item.status}</span>
               </div>
-              <p className="mt-2 text-sm capitalize text-ink-500">{report.reason ?? "Report"} · {new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(item.created_at))}</p>
+              <p className="mt-2 text-sm capitalize text-ink-500">{report.reason ?? "Report"} · {new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(item.created_at))}</p>
             </Link>
           );
         }) : <p className="rounded-2xl bg-cream-100 p-6 text-ink-500">No moderation cases are waiting.</p>}

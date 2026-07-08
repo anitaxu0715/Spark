@@ -140,7 +140,13 @@ export async function getCurrentProfile(supabase: Client, userId: string) {
 }
 
 export async function getSkills(supabase: Client) {
-  const { data, error } = await supabase.from("skills").select("id, name, category").eq("active", true).order("category").order("name");
+  const { data, error } = await supabase
+    .from("skills")
+    .select("id, name, category")
+    .eq("active", true)
+    .neq("category", "Community")
+    .order("category")
+    .order("name");
   if (error) throw new Error("The skill catalog could not be loaded.");
   return data as Skill[];
 }

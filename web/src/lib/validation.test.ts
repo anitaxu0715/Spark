@@ -83,6 +83,24 @@ describe("safe redirects", () => {
 });
 
 describe("domain form validation", () => {
+  it("accepts English numeric date-time text and normalizes it for requests", () => {
+    const future = new Date(Date.now() + 48 * 60 * 60 * 1000);
+    const yyyy = future.getFullYear();
+    const mm = String(future.getMonth() + 1).padStart(2, "0");
+    const dd = String(future.getDate()).padStart(2, "0");
+    const hh = String(future.getHours()).padStart(2, "0");
+    const min = String(future.getMinutes()).padStart(2, "0");
+    const result = requestSchema.safeParse({
+      recipientId: "30000000-0000-4000-8000-000000000002",
+      requestedSkillId: "20000000-0000-4000-8000-000000000001",
+      message: "This message is long enough to explain the learning goal.",
+      preferredAt: `${yyyy}-${mm}-${dd} ${hh}:${min}`,
+      format: "online",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.preferredAt).toBe(`${yyyy}-${mm}-${dd}T${hh}:${min}`);
+  });
+
   it("rejects a request with a past meeting time", () => {
     const result = requestSchema.safeParse({
       recipientId: "30000000-0000-4000-8000-000000000002",

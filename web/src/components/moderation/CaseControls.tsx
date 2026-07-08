@@ -73,7 +73,8 @@ export function CaseControls({
               </select>
             </label>
             <label className="text-sm font-semibold text-red-950">Expiration for temporary restriction
-              <input className="mt-2 min-h-11 w-full rounded-xl border border-red-200 bg-white px-3" name="expiresAt" type="datetime-local" />
+              <span className="mt-1 block text-xs font-normal text-red-900">Use English numeric format, e.g. 2026-07-10 14:30.</span>
+              <input className="mt-2 min-h-11 w-full rounded-xl border border-red-200 bg-white px-3" inputMode="numeric" name="expiresAt" pattern="\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}" placeholder="YYYY-MM-DD HH:MM" type="text" />
             </label>
           </div>
           <label className="mt-4 block text-sm font-semibold text-red-950">Internal reason

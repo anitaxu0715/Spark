@@ -35,8 +35,8 @@ export function RequestForm({ profile, offeredSkills }: { profile: Profile; offe
         <textarea className="field min-h-28 resize-y" id="request-message" maxLength={1000} name="message" placeholder="Introduce yourself and share what you hope to learn." required />
       </FormField>
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="request-time" label="Preferred date and time" error={state.fieldErrors?.preferredAt?.[0]}>
-          <input className="field" id="request-time" name="preferredAt" type="datetime-local" required />
+        <FormField id="request-time" label="Preferred date and time" error={state.fieldErrors?.preferredAt?.[0]} hint="Use English numeric format, e.g. 2026-07-10 14:30.">
+          <input className="field" id="request-time" inputMode="numeric" name="preferredAt" pattern="\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}" placeholder="YYYY-MM-DD HH:MM" required type="text" />
         </FormField>
         <FormField id="request-format" label="Session format">
           <select className="field" id="request-format" name="format" onChange={(event) => setFormat(event.target.value as "online" | "in-person")} value={format}>
@@ -53,7 +53,7 @@ export function RequestForm({ profile, offeredSkills }: { profile: Profile; offe
       </FormField>
       {format === "in-person" && <SafetyNotice compact />}
       {state.error && <p className="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700" role="alert">{state.error}</p>}
-      <AuthSubmitButton pendingLabel="Sending request…">Send learning request</AuthSubmitButton>
+      <AuthSubmitButton pendingLabel="Sending request...">Send learning request</AuthSubmitButton>
     </form>
   );
 }

@@ -55,5 +55,5 @@ export async function waitForMailLink(
 export function futureLocalDateTime(daysFromNow = 20) {
   const value = new Date(Date.now() + daysFromNow * 86_400_000);
   const local = new Date(value.getTime() - value.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 16);
+  return local.toISOString().slice(0, 16).replace("T", " ");
 }

@@ -16,7 +16,7 @@ export default async function AccountStatusPage() {
             <h2 className="font-bold text-amber-950">Account restriction</h2>
             <p className="mt-2 text-sm leading-6 text-amber-900">
               {restriction.type === "temporary_suspension" && restriction.expires_at
-                ? `Access resumes after ${new Intl.DateTimeFormat(undefined, { dateStyle: "long", timeStyle: "short" }).format(new Date(restriction.expires_at))}.`
+                ? `Access resumes after ${new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeStyle: "short" }).format(new Date(restriction.expires_at))}.`
                 : "This restriction has no automatic end date."}
               {" "}Contact the Spark support team if you believe this is an error.
             </p>
@@ -25,7 +25,7 @@ export default async function AccountStatusPage() {
         {deletion && (
           <section className="mt-7 rounded-2xl bg-indigo-50 p-5">
             <h2 className="font-bold text-indigo-950">Deletion scheduled</h2>
-            <p className="mt-2 text-sm leading-6 text-indigo-800">Your account is scheduled for deletion after {new Intl.DateTimeFormat(undefined, { dateStyle: "long", timeStyle: "short" }).format(new Date(deletion.purge_after))}.</p>
+            <p className="mt-2 text-sm leading-6 text-indigo-800">Your account is scheduled for deletion after {new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeStyle: "short" }).format(new Date(deletion.purge_after))}.</p>
             <form action={cancelAccountDeletionAction} className="mt-4"><Button type="submit">Cancel deletion</Button></form>
           </section>
         )}
