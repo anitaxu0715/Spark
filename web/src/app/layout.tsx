@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     template: "%s | Spark",
   },
   description: "Share what you know and discover skills through thoughtful peer-to-peer learning.",
+  verification: {
+    google: "nC_t_klt5Dttf8on8ALnMEK4nOgNc28wCLoUgV5ygOs",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
