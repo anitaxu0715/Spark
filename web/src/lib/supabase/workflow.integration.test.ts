@@ -41,6 +41,28 @@ describe.skipIf(!url || !key)("two-user Supabase workflow", () => {
       .single();
     expect(notification?.event_type).toBe("new_request");
 
+    const { error: messageError } = await anita.from("request_messages").insert({
+      request_id: requestId,
+      author_id: anitaAuth.user!.id,
+      body: "I can meet near the library after 3pm if that works.",
+    });
+    expect(messageError).toBeNull();
+
+    const { data: conversation } = await maya
+      .from("request_messages")
+      .select("body")
+      .eq("request_id", requestId)
+      .single();
+    expect(conversation?.body).toContain("library");
+
+    const { data: messageNotification } = await maya
+      .from("notifications")
+      .select("event_type")
+      .eq("request_id", requestId)
+      .eq("event_type", "request_message")
+      .single();
+    expect(messageNotification?.event_type).toBe("request_message");
+
     const { error: acceptError } = await maya.from("learning_requests").update({ status: "accepted" }).eq("id", requestId);
     expect(acceptError).toBeNull();
 

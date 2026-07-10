@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(40);
+select plan(48);
 
 select is(
   (
@@ -13,7 +13,7 @@ select is(
       and c.relname in (
         'universities', 'university_domains', 'memberships', 'profiles',
         'profile_locations', 'skills', 'profile_skills', 'learning_requests',
-        'request_status_events', 'saved_profiles', 'notifications', 'blocks',
+        'request_status_events', 'request_messages', 'saved_profiles', 'notifications', 'blocks',
         'reports', 'session_feedback', 'invite_codes', 'invite_redemptions'
       )
       and not c.relrowsecurity
@@ -257,6 +257,28 @@ select lives_ok(
   'A verified sender can create a lightweight request without a scheduled time'
 );
 
+select lives_ok(
+  $$ insert into public.request_messages (
+       request_id, author_id, body
+     ) values (
+       '90000000-0000-4000-8000-000000000010',
+       '30000000-0000-4000-8000-000000000001',
+       '   I can meet after class near the library.   '
+     ) $$,
+  'A request participant can add a conversation message'
+);
+
+select is(
+  (
+    select body
+    from public.request_messages
+    where request_id = '90000000-0000-4000-8000-000000000010'
+      and author_id = '30000000-0000-4000-8000-000000000001'
+  ),
+  'I can meet after class near the library.',
+  'Conversation messages are trimmed and normalized'
+);
+
 select throws_ok(
   $$ insert into public.learning_requests (
        sender_id, recipient_id, requested_skill_id, message, preferred_at, format
@@ -290,10 +312,55 @@ select is(
   0::bigint,
   'Unrelated members cannot read a request'
 );
+select is(
+  (select count(*) from public.request_messages where request_id = '90000000-0000-4000-8000-000000000010'),
+  0::bigint,
+  'Unrelated members cannot read request conversation messages'
+);
+select throws_ok(
+  $$ insert into public.request_messages (
+       request_id, author_id, body
+     ) values (
+       '90000000-0000-4000-8000-000000000010',
+       '30000000-0000-4000-8000-000000000003',
+       'I should not be able to join this conversation.'
+     ) $$,
+  '42501',
+  null,
+  'Unrelated members cannot write request conversation messages'
+);
 reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '30000000-0000-4000-8000-000000000002', true);
+select is(
+  (select count(*) from public.request_messages where request_id = '90000000-0000-4000-8000-000000000010'),
+  1::bigint,
+  'The other request participant can read conversation messages'
+);
+select is(
+  (
+    select count(*)
+    from public.notifications
+    where owner_id = '30000000-0000-4000-8000-000000000002'
+      and request_id = '90000000-0000-4000-8000-000000000010'
+      and event_type = 'request_message'
+  ),
+  1::bigint,
+  'A conversation message notifies the other request participant'
+);
+select throws_ok(
+  $$ insert into public.request_messages (
+       request_id, author_id, body
+     ) values (
+       '90000000-0000-4000-8000-000000000010',
+       '30000000-0000-4000-8000-000000000002',
+       '     '
+     ) $$,
+  '23514',
+  null,
+  'Empty conversation messages are rejected'
+);
 select lives_ok(
   $$ update public.learning_requests
      set status = 'accepted'
@@ -476,6 +543,24 @@ select is(
 
 insert into public.blocks (blocker_id, blocked_id)
 values ('30000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000002');
+reset role;
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '30000000-0000-4000-8000-000000000001', true);
+insert into public.blocks (blocker_id, blocked_id)
+values ('30000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000004');
+select throws_ok(
+  $$ insert into public.request_messages (
+       request_id, author_id, body
+     ) values (
+       '90000000-0000-4000-8000-000000000011',
+       '30000000-0000-4000-8000-000000000001',
+       'Blocked members should not be able to coordinate.'
+     ) $$,
+  '42501',
+  null,
+  'Blocked request participants cannot create conversation messages'
+);
 reset role;
 
 set local role authenticated;

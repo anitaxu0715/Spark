@@ -5,6 +5,7 @@ import { actionError } from "@/lib/action-errors";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   feedbackSchema,
+  requestMessageSchema,
   requestSchema,
   requestTransitionSchema,
   type ActionState,
@@ -81,6 +82,37 @@ export async function transitionRequestAction(requestId: string, status: Request
   revalidatePath("/requests");
   revalidatePath("/notifications");
   return { success: true };
+}
+
+export async function createRequestMessageAction(_state: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = requestMessageSchema.safeParse({
+    requestId: formData.get("requestId"),
+    body: formData.get("body"),
+  });
+  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return { error: "Spark is not connected to Supabase." };
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Sign in again before sending a message." };
+
+  const { error } = await supabase.from("request_messages").insert({
+    request_id: parsed.data.requestId,
+    author_id: user.id,
+    body: parsed.data.body,
+  });
+  if (error) {
+    return {
+      error: actionError(error, "Your message could not be sent. Please try again.", {
+        "23514": "Write a short message before sending.",
+        "42501": "Messages are closed for this request or disabled between these members.",
+      }),
+    };
+  }
+
+  revalidatePath("/requests");
+  revalidatePath("/notifications");
+  return { success: "Message sent." };
 }
 
 export async function submitFeedbackAction(_state: ActionState, formData: FormData): Promise<ActionState> {

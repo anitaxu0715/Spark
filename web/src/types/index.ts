@@ -46,6 +46,7 @@ export interface Profile {
 export interface LearningRequest {
   id: string;
   direction: "incoming" | "sent";
+  viewerId: string;
   personId: string;
   personSlug?: string;
   personName: string;
@@ -61,6 +62,15 @@ export interface LearningRequest {
   cancellationReason?: string;
   hasFeedback: boolean;
   rescheduleProposals: RescheduleProposal[];
+  messages: RequestMessage[];
+}
+
+export interface RequestMessage {
+  id: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
 }
 
 export interface RescheduleProposal {
@@ -81,6 +91,7 @@ export interface NotificationItem {
     | "request_declined"
     | "request_completed"
     | "request_cancelled"
+    | "request_message"
     | "feedback_reminder"
     | "reschedule_proposed"
     | "reschedule_accepted"

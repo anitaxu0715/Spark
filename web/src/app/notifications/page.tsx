@@ -13,6 +13,7 @@ const messages = {
   request_declined: "declined your learning request.",
   request_completed: "marked your session complete.",
   request_cancelled: "cancelled a learning request.",
+  request_message: "sent a new request message.",
   feedback_reminder: "Your session is complete. Private feedback is ready.",
   reschedule_proposed: "proposed a new schedule.",
   reschedule_accepted: "accepted your proposed schedule.",

@@ -31,14 +31,24 @@ test("completes the critical workflow across isolated member contexts", async ({
   await expect(anita.getByRole("heading", { name: "Request sent" })).toBeVisible();
   await anita.getByRole("link", { name: /View sent requests/ }).click();
   await expect(anita.getByText(message)).toBeVisible();
+  const followUp = `${marker}: I can meet near the library after 3pm.`;
+  const sentRequest = anita.getByRole("article").filter({ hasText: marker });
+  await sentRequest.getByRole("button", { name: "Send message" }).click();
+  await expect(sentRequest.getByText("Write a short message before sending.")).toBeVisible();
+  await sentRequest.getByLabel("Add a message").fill(followUp);
+  await sentRequest.getByRole("button", { name: "Send message" }).click();
+  await expect(sentRequest.getByText("Message sent.")).toBeVisible();
+  await expect(sentRequest.getByText(followUp)).toBeVisible();
 
   await signIn(maya, "maya@spark.test", "SparkLocal!2026");
   await maya.goto("/notifications");
   await expect(maya.getByText("Anita", { exact: false }).first()).toBeVisible();
+  await expect(maya.getByText("sent a new request message.").first()).toBeVisible();
   await maya.goto("/requests");
   await maya.waitForLoadState("networkidle");
   const incoming = maya.getByRole("article").filter({ hasText: marker });
   await expect(incoming).toBeVisible();
+  await expect(incoming.getByText(followUp)).toBeVisible();
   await incoming.getByRole("button", { name: "Accept" }).click();
   await expect(incoming.getByText(/^accepted$/i)).toBeVisible();
 

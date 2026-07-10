@@ -16,7 +16,7 @@ export async function getLearningRequests(supabase: Client, userId: string): Pro
   const skillIds = [...new Set(rows.flatMap((row) => [row.requested_skill_id, row.offered_skill_id].filter(Boolean) as string[]))];
   const requestIds = rows.map((row) => row.id);
 
-  const [{ data: profiles }, { data: skills }, { data: feedback }, { data: proposals }] = await Promise.all([
+  const [{ data: profiles }, { data: skills }, { data: feedback }, { data: proposals }, { data: messages }] = await Promise.all([
     supabase.from("profiles").select("id, slug, display_name, initials").in("id", profileIds),
     supabase.from("skills").select("id, name").in("id", skillIds),
     supabase.from("session_feedback").select("request_id").eq("user_id", userId).in("request_id", requestIds),
@@ -25,6 +25,11 @@ export async function getLearningRequests(supabase: Client, userId: string): Pro
       .select("id, request_id, proposer_id, proposed_at, proposed_format, note, status, created_at")
       .in("request_id", requestIds)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("request_messages")
+      .select("id, request_id, author_id, body, created_at")
+      .in("request_id", requestIds)
+      .order("created_at", { ascending: true }),
   ]);
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
   const skillMap = new Map((skills ?? []).map((skill) => [skill.id, skill.name]));
@@ -37,6 +42,7 @@ export async function getLearningRequests(supabase: Client, userId: string): Pro
     return {
       id: row.id,
       direction,
+      viewerId: userId,
       personId,
       personSlug: person?.slug,
       personName: person?.display_name ?? "Spark member",
@@ -61,6 +67,15 @@ export async function getLearningRequests(supabase: Client, userId: string): Pro
           note: proposal.note,
           status: proposal.status,
           createdAt: proposal.created_at,
+        })),
+      messages: (messages ?? [])
+        .filter((message) => message.request_id === row.id)
+        .map((message) => ({
+          id: message.id,
+          authorId: message.author_id,
+          authorName: profileMap.get(message.author_id)?.display_name ?? "Spark member",
+          body: message.body,
+          createdAt: message.created_at,
         })),
     };
   });

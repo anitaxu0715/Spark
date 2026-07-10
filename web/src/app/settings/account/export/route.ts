@@ -42,6 +42,12 @@ export async function GET() {
   ].find((result) => result.error);
   if (failed?.error) return Response.json({ error: "Your export could not be created." }, { status: 500 });
 
+  const requestIds = (requests.data ?? []).map((request) => request.id);
+  const requestMessages = requestIds.length
+    ? await supabase.from("request_messages").select("*").in("request_id", requestIds)
+    : { data: [], error: null };
+  if (requestMessages.error) return Response.json({ error: "Your export could not be created." }, { status: 500 });
+
   const payload = {
     exportedAt: new Date().toISOString(),
     account: { id: user.id, email: user.email, createdAt: user.created_at },
@@ -50,6 +56,7 @@ export async function GET() {
     location: location.data,
     skills: skills.data,
     learningRequests: requests.data,
+    requestMessages: requestMessages.data,
     savedProfiles: savedProfiles.data,
     notifications: notifications.data,
     blocks: blocks.data,

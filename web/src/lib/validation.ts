@@ -157,6 +157,11 @@ export const requestTransitionSchema = z.object({
   cancellationReason: z.string().trim().max(300).optional(),
 });
 
+export const requestMessageSchema = z.object({
+  requestId: z.string().uuid(),
+  body: z.string().trim().min(1, "Write a short message before sending.").max(1000, "Keep messages under 1,000 characters."),
+});
+
 export const reportSchema = z.object({
   profileId: z.string().uuid(),
   reason: z.enum(["safety", "harassment", "spam", "misrepresentation", "other"]),

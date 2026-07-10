@@ -794,6 +794,45 @@ export type Database = {
           },
         ]
       }
+      request_messages: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          request_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          request_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_messages_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "request_messages_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "learning_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       request_status_events: {
         Row: {
           actor_id: string | null
@@ -1242,6 +1281,7 @@ export type Database = {
         | "restriction_applied"
         | "restriction_revoked"
         | "account_deletion_cancelled"
+        | "request_message"
       operational_role: "moderator" | "institution_admin" | "platform_admin"
       report_reason:
         | "safety"
@@ -1431,6 +1471,7 @@ export const Constants = {
         "restriction_applied",
         "restriction_revoked",
         "account_deletion_cancelled",
+        "request_message",
       ],
       operational_role: ["moderator", "institution_admin", "platform_admin"],
       report_reason: [

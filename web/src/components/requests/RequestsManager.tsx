@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { SafetyNotice } from "@/components/SafetyNotice";
 import { StatusBadge } from "@/components/StatusBadge";
 import { FeedbackForm } from "@/components/requests/FeedbackForm";
+import { RequestConversation } from "@/components/requests/RequestConversation";
 import { RescheduleForm } from "@/components/requests/RescheduleForm";
 import { Button } from "@/components/ui/Button";
 import type { LearningRequest, RequestStatus } from "@/types";
@@ -89,6 +90,7 @@ export function RequestsManager({ requests, initialView = "incoming" }: { reques
                 <div><dt className="eyebrow">Format</dt><dd className="mt-1.5 font-semibold capitalize text-indigo-950">{request.format}</dd></div>
               </dl>
               {request.format === "in-person" && <div className="mt-5"><SafetyNotice compact /></div>}
+              <RequestConversation messages={request.messages} requestId={request.id} status={request.status} viewerId={request.viewerId} />
               {pendingProposal && (
                 <section className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
                   <h3 className="font-bold text-indigo-950">Pending reschedule proposal</h3>
